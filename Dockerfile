@@ -11,6 +11,10 @@ COPY . .
 #    && npm ci \
 #    && apk del .builddeps
 RUN npm ci
+# npm ci fails to run build script for some reason
+RUN npm run build
 
+ENV PORT 80
 ENTRYPOINT [ "/sbin/tini", "--" ]
-CMD [ "node", "dist/app.js" ]
+CMD [ "npm", "start" ]
+EXPOSE 80
