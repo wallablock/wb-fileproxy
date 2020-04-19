@@ -1,0 +1,150 @@
+openapi: 3.0.1
+info:
+  title: Wallablock IPFS Proxy
+  version: 0.1.0
+paths:
+  '/{cid}':
+    get:
+      summary: Get the contents of the CID
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: CID to fetch
+          schema:
+            type: string
+      responses:
+        '200':
+          description: found
+          content:
+            '*/*': {}
+        '404':
+          description: not found
+      tags:
+        - basic
+  '/wb/{dirCid}':
+    get:
+      summary: Get JSON description of a directory
+      parameters:
+        - name: dirCid
+          in: path
+          description: CID of the directory
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Directory found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OfferDirInfo'
+        '400':
+          description: 'Directory found, but not a valid Wallablock offer dir.'
+        '404':
+          description: Directory not found
+      tags:
+        - wallablock
+    post:
+      summary: Upload a new directory
+      description: >-
+        The body shall be a form data with the name of the files, following the
+        spec of a Wallablock IPFS directory.
+      parameters:
+        - name: dirCid
+          in: path
+          description: CID of the directory to be uploaded
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data: {}
+      responses:
+        '201':
+          description: The directory was accepted and created
+        '400':
+          description: The directory is not a valid Wallablock offer dir.
+        '403':
+          description: >-
+            The requested CID is not in the blockchain and, therefore, shall not
+            be stored
+        '409':
+          description: The produced CID does not match with the target CID
+      tags:
+        - wallablock
+  '/wb/{dirCid}/cover':
+    get:
+      summary: Get the cover of an offer from its directory
+      parameters:
+        - name: dirCid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '302':
+          description: redirect to the corresponding CID
+        '404':
+          description: '{dirCid} not found or it does not have a cover image.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundReason'
+      tags:
+        - wallablock
+  '/wb/{dirCid}/desc':
+    get:
+      summary: Get the description of an offer from its directory
+      parameters:
+        - name: dirCid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '302':
+          description: redirect to the corresponding CID
+        '404':
+          description: '{dirCid} not found or it does not have a description'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundReason'
+      tags:
+        - wallablock
+tags:
+  - name: basic
+    description: Basic IPFS operations to proxy
+  - name: wallablock
+    description: Extended Wallablock operations to handle
+components:
+  schemas:
+    OfferDirInfo:
+      required: 
+        - descLink
+        - imagesLink
+      properties:
+        descLink:
+          nullable: true
+          type: string
+          description: Link to the description file
+        imagesLink:
+          type: array
+          default: []
+          description: 'Link to the images, ordered. First link is cover.'
+          items:
+            description: Link to the images. Linked images shall have a `image` MIME tipe.
+            type: string
+    NotFoundReason:
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          enum:
+            - NOT_FOUND
+            - NOT_AN_OFFER_DIR
+            - HAS_NO_SUCH_ITEM
+        message:
+          type: string
