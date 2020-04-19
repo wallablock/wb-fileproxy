@@ -3,7 +3,7 @@ import express from "express";
 import { endpoint } from "./helpers";
 
 let app = express();
-const port = 3000;
+const port = +(process.env["PORT"] || 3000);
 
 app.get("/wb/:dirCid/cover", endpoint(async (req, res) => {
     throw "Not implemented";
