@@ -17,10 +17,15 @@ app.get("/wb/:dirCid/dest", endpoint(async (req, res) => {
 
 app.route("/wb/:dirCid")
     .get(endpoint(async (req, res) => {
-        let response = await ipfs.getDir(req.hostname,req.params.dirCid);
-        if (!response) res.sendStatus(404);
-        else if (!response.descLink || response.imagesLink.length == 0) res.sendStatus(400);
-        else res.status(200).send(response);
+        let response;
+        try {
+            response = await ipfs.getDir(req.params.dirCid);
+        } catch (err) {
+            // Assumption: if error => promise rejected => file does not exist.
+            res.sendStatus(404);
+            return;
+        }
+        res.status(200).send(response);
     }))
     .post(endpoint(async (req, res) => {
         throw "Not implemented";
