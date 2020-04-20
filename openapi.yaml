@@ -40,7 +40,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/OfferDirInfo'
         '400':
-          description: 'Directory found, but not a valid Wallablock offer dir.'
+          description: >-
+            Directory found, but not a valid Wallablock offer dir.
+            Note: with the current spec, no such response is possible, since
+            both extra files are allowed, and no files are required, so every
+            directory can be considered a Wallablock offer dir.
         '404':
           description: Directory not found
       tags:
@@ -121,7 +125,7 @@ tags:
 components:
   schemas:
     OfferDirInfo:
-      required: 
+      required:
         - descLink
         - imagesLink
       properties:
