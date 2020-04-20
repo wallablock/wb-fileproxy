@@ -8,6 +8,12 @@ export interface OfferDirInfo {
 let ipfs = ipfsClient("http://127.0.0.1:8080");
 const imgRegex = /^img[0-9]{2}\./;
 
+export async function* fetchWithCid(cid: string): AsyncIterable<Buffer> {
+    // TODO: Gestionar cas de CID not found;
+    // TODO: Gestionar cas de CID is a directory
+    return ipfs.cat(cid);
+}
+
 export async function getDir(dirCID: string): Promise<OfferDirInfo> {
     let descLink = null;
     // IPFS.ls may not return the files ordered, and the order is important,

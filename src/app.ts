@@ -2,7 +2,7 @@ import express from "express";
 
 import { endpoint } from "./helpers";
 
-import * as ipfs from "./ipfs"
+import { getDir, fetchWithCid } from "./ipfs"
 
 let app = express();
 const port = +(process.env["PORT"] || 3000);
@@ -19,7 +19,7 @@ app.route("/wb/:dirCid")
     .get(endpoint(async (req, res) => {
         let response;
         try {
-            response = await ipfs.getDir(req.params.dirCid);
+            response = await getDir(req.params.dirCid);
         } catch (err) {
             // Assumption: if error => promise rejected => file does not exist.
             res.sendStatus(404);
@@ -32,7 +32,11 @@ app.route("/wb/:dirCid")
     }));
 
 app.get("/:cid", endpoint(async (req, res) => {
-    throw "Not implemented";
+    let cid = req.params.cid;
+    for await (const buf of fetchWithCid(cid)) {
+        // TODO: Error handling
+        res.send(buf);
+    }
 }));
 
 app.listen(port, () => console.log(`Server running on port ${port}`));
