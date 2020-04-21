@@ -2,17 +2,50 @@ import express from "express";
 
 import { endpoint } from "./helpers";
 
-import { getDir, fetchWithCid } from "./ipfs"
+import { getDir, fetchWithCid, getDesc, getCover } from "./ipfs"
+
+export interface NotFoundReason {
+    code: string; //NOT_FOUND, NOT_AN_OFFER_DIR, HAS_NOT_SUCH_ITEM
+    message: string
+}
 
 let app = express();
 const port = +(process.env["PORT"] || 3000);
 
 app.get("/wb/:dirCid/cover", endpoint(async (req, res) => {
-    throw "Not implemented";
-}))
+    let response;
+    try {
+        response = await getCover(req.params.dirCid);
+    }
+    catch (err) {
+        let error: NotFoundReason = {
+            code: "HAS_NOT_SUCH_ITEM",
+            message: "Unknown error"
+        };
+        if (!err.message) error.message = err;
+        res.status(404).send(error);
+        return;
+    }
+    let link = `http://${req.hostname}:8080/ipfs/${response}`;
+    res.redirect(link);
+}));
 
-app.get("/wb/:dirCid/dest", endpoint(async (req, res) => {
-    throw "Not implemented";
+app.get("/wb/:dirCid/desc", endpoint(async (req, res) => {
+    let response;
+    try {
+        response = await getDesc(req.params.dirCid);
+    }
+    catch (err) {
+        let error: NotFoundReason = {
+            code: "HAS_NOT_SUCH_ITEM",
+            message: "Unknown error"
+        };
+        if (!err.message) error.message = err;
+        res.status(404).send(error);
+        return;
+    }
+    let link = `http://${req.hostname}:8080/ipfs/${response}`;
+    res.redirect(link);
 }));
 
 app.route("/wb/:dirCid")
@@ -21,7 +54,7 @@ app.route("/wb/:dirCid")
         try {
             response = await getDir(req.params.dirCid);
         } catch (err) {
-            // Assumption: if error => promise rejected => file does not exist.
+            console.log(err);
             res.sendStatus(404);
             return;
         }
@@ -31,12 +64,28 @@ app.route("/wb/:dirCid")
         throw "Not implemented";
     }));
 
-app.get("/:cid", endpoint(async (req, res) => {
-    let cid = req.params.cid;
-    for await (const buf of fetchWithCid(cid)) {
-        // TODO: Error handling
-        res.send(buf);
+app.get("/:cid/:fileName", endpoint(async (req, res) => {
+    let cid = `${req.params.cid}/${req.params.fileName}`;
+    let response;
+    try {
+        response = await fetchWithCid(cid);
+    } catch (err) {
+        res.sendStatus(404);
+        return;
     }
+    res.send(response);
+}));
+
+app.get("/:cid", endpoint(async (req, res) => {
+    let cid = `${req.params.cid}`;
+    let response;
+    try {
+        response = await fetchWithCid(cid);
+    } catch (err) {
+        res.sendStatus(404);
+        return;
+    }
+    res.send(response);
 }));
 
 app.listen(port, () => console.log(`Server running on port ${port}`));
