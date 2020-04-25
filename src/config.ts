@@ -7,11 +7,7 @@ export interface Config {
         enable: boolean,
         port: number
     },
-    ipfsNode: {
-        host: string,
-        gatewayPort: number,
-        apiPort: number
-    }
+    ipfsNode: string
 };
 
 const DEFAULT_CONFIG: Config = {
@@ -23,11 +19,7 @@ const DEFAULT_CONFIG: Config = {
         enable: false,
         port: 443
     },
-    ipfsNode: {
-        host: "127.0.0.1",
-        gatewayPort: 8080,
-        apiPort: 5001
-    }
+    ipfsNode: "http://127.0.0.1:5001"
 };
 
 function toBool(s?: string, keyName?: string): boolean | undefined {
@@ -63,10 +55,6 @@ export function getConfigFromEnv(): Config {
             enable: toBoolEnv("WB_FP_HTTPS_ENABLE") ?? DEFAULT_CONFIG.https.enable,
             port: +(process.env["WB_FP_HTTPS_PORT"] || DEFAULT_CONFIG.https.port)
         },
-        ipfsNode: {
-            host: process.env["WB_IPFS_NODE"] || DEFAULT_CONFIG.ipfsNode.host,
-            gatewayPort: +(process.env["WB_IPFS_GATEWAY_PORT"] || DEFAULT_CONFIG.ipfsNode.gatewayPort),
-            apiPort: +(process.env["WB_IPFS_API_PORT"] || DEFAULT_CONFIG.ipfsNode.apiPort)
-        }
+        ipfsNode: process.env["WB_IPFS_NODE"] || DEFAULT_CONFIG.ipfsNode
     }
 }

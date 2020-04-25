@@ -9,8 +9,8 @@ export class IpfsInterface {
     private ipfs: any;
     private readonly imgRegex = /^img[0-9]{2}\./;
 
-    public constructor(ipfsHost: string, ipfsPort: number) {
-        this.ipfs = ipfsClient(`http://${ipfsHost}:${ipfsPort}`);
+    public constructor(ipfsUrl: string) {
+        this.ipfs = ipfsClient(ipfsUrl);
     }
 
     //FALTA GESTIONAR CID NOT FOUND EN TOTES LES FUNCIONS

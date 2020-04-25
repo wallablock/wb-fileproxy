@@ -9,7 +9,7 @@ export interface NotFoundReason {
 }
 
 const config = getConfigFromEnv();
-const ipfs = new IpfsInterface(config.ipfsNode.host, config.ipfsNode.apiPort);
+const ipfs = new IpfsInterface(config.ipfsNode);
 
 let app = express();
 
