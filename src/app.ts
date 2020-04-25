@@ -32,8 +32,7 @@ app.get("/wb/:dirCid/cover", endpoint(async (req, res) => {
         res.status(404).send(error);
         return;
     }
-    let link = `http://${req.hostname}:8080/ipfs/${response}`;
-    res.redirect(link);
+    res.redirect(`/${response}`);
 }));
 
 app.get("/wb/:dirCid/desc", endpoint(async (req, res) => {
@@ -55,8 +54,7 @@ app.get("/wb/:dirCid/desc", endpoint(async (req, res) => {
         res.status(404).send(error);
         return;
     }
-    let link = `http://${req.hostname}:8080/ipfs/${response}`;
-    res.redirect(link);
+    res.redirect(`/${response}`);
 }));
 
 app.route("/wb/:dirCid")
