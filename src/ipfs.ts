@@ -7,7 +7,6 @@ export interface OfferDirInfo {
 
 let ipfs = ipfsClient("http://127.0.0.1:8080");
 const imgRegex = /^img[0-9]{2}\./;
-const coverRegex = /^img[0]{2}\./;
 
 
 export async function fetchWithCid(cid: string): Promise<Buffer> {
@@ -23,7 +22,8 @@ export async function fetchWithCid(cid: string): Promise<Buffer> {
 
 export async function getCover(dirCID: string): Promise<String> {
     for await (const file of ipfs.ls(dirCID)) {
-        if (coverRegex.test(file.name)) return file.path;
+        //if (coverRegex.test(file.name)) return file.path;
+        if (file.name.startsWith("img00.")) return file.path;
     }
     throw 'Cover not found';
 }
