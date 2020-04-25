@@ -5,7 +5,7 @@ import { endpoint } from "./helpers";
 import { getDir, fetchWithCid, getDesc, getCover } from "./ipfs"
 
 export interface NotFoundReason {
-    code: string; //NOT_FOUND, NOT_AN_OFFER_DIR, HAS_NOT_SUCH_ITEM
+    code: "NOT_FOUND" | "NOT_AN_OFFER_DIR" | "HAS_NO_SUCH_ITEM";
     message: string
 }
 
@@ -19,7 +19,7 @@ app.get("/wb/:dirCid/cover", endpoint(async (req, res) => {
     }
     catch (err) {
         let error: NotFoundReason = {
-            code: "HAS_NOT_SUCH_ITEM",
+            code: "HAS_NO_SUCH_ITEM",
             message: "Unknown error"
         };
         if (!err.message) error.message = err;
@@ -37,7 +37,7 @@ app.get("/wb/:dirCid/desc", endpoint(async (req, res) => {
     }
     catch (err) {
         let error: NotFoundReason = {
-            code: "HAS_NOT_SUCH_ITEM",
+            code: "HAS_NO_SUCH_ITEM",
             message: "Unknown error"
         };
         if (!err.message) error.message = err;
