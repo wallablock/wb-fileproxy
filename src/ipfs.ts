@@ -15,13 +15,11 @@ export class IpfsInterface {
 
     //FALTA GESTIONAR CID NOT FOUND EN TOTES LES FUNCIONS
 
-    public async fetchWithCid(cid: string): Promise<Buffer> {
+    public fetchWithCid(cid: string): AsyncIterable<Buffer> {
         console.log(cid);
-        const chunks = []
-        for await (const chunk of this.ipfs.cat(cid)) {
-          chunks.push(chunk);
-        }
-        return Buffer.concat(chunks);
+        // We return the IPFS's cat iterator directly, so we can
+        // avoid storing the entire file in memory.
+        return this.ipfs.cat(cid);
     }
 
     public async getCover(dirCid:string): Promise<string> {

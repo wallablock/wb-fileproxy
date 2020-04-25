@@ -87,14 +87,16 @@ app.get("/:cid/:fileName", endpoint(async (req, res) => {
 
 app.get("/:cid", endpoint(async (req, res) => {
     let cid = `${req.params.cid}`;
-    let response;
     try {
-        response = await ipfs.fetchWithCid(cid);
+        for await (const chunk of ipfs.fetchWithCid(cid)) {
+            // We send chunks as they are returned to avoid
+            // storing the entire file in memory.
+            res.send(chunk);
+        }
     } catch (err) {
         res.sendStatus(404);
         return;
     }
-    res.send(response);
 }));
 
 if (config.http.enable) {
