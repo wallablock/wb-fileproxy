@@ -1,6 +1,6 @@
 import express from "express";
 import { endpoint } from "./helpers";
-import { getDir, fetchWithCid, getDesc, getCover } from "./ipfs"
+import { IpfsInterface } from "./ipfs";
 import { getConfigFromEnv } from "./config";
 
 export interface NotFoundReason {
@@ -9,13 +9,14 @@ export interface NotFoundReason {
 }
 
 const config = getConfigFromEnv();
+const ipfs = new IpfsInterface(config.ipfsNode.host, config.ipfsNode.apiPort);
 
 let app = express();
 
 app.get("/wb/:dirCid/cover", endpoint(async (req, res) => {
     let response;
     try {
-        response = await getCover(req.params.dirCid);
+        response = await ipfs.getCover(req.params.dirCid);
     }
     catch (err) {
         let error: NotFoundReason = {
@@ -38,7 +39,7 @@ app.get("/wb/:dirCid/cover", endpoint(async (req, res) => {
 app.get("/wb/:dirCid/desc", endpoint(async (req, res) => {
     let response;
     try {
-        response = await getDesc(req.params.dirCid);
+        response = await ipfs.getDesc(req.params.dirCid);
     }
     catch (err) {
         let error: NotFoundReason = {
@@ -62,7 +63,7 @@ app.route("/wb/:dirCid")
     .get(endpoint(async (req, res) => {
         let response;
         try {
-            response = await getDir(req.params.dirCid);
+            response = await ipfs.getDir(req.params.dirCid);
         } catch (err) {
             console.log(err);
             res.sendStatus(404);
@@ -78,7 +79,7 @@ app.get("/:cid/:fileName", endpoint(async (req, res) => {
     let cid = `${req.params.cid}/${req.params.fileName}`;
     let response;
     try {
-        response = await fetchWithCid(cid);
+        response = await ipfs.fetchWithCid(cid);
     } catch (err) {
         res.sendStatus(404);
         return;
@@ -90,7 +91,7 @@ app.get("/:cid", endpoint(async (req, res) => {
     let cid = `${req.params.cid}`;
     let response;
     try {
-        response = await fetchWithCid(cid);
+        response = await ipfs.fetchWithCid(cid);
     } catch (err) {
         res.sendStatus(404);
         return;

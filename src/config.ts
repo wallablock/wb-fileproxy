@@ -8,7 +8,7 @@ export interface Config {
         port: number
     },
     ipfsNode: {
-        url: string,
+        host: string,
         gatewayPort: number,
         apiPort: number
     }
@@ -24,7 +24,7 @@ const DEFAULT_CONFIG: Config = {
         port: 443
     },
     ipfsNode: {
-        url: "http://127.0.0.1",
+        host: "127.0.0.1",
         gatewayPort: 8080,
         apiPort: 5001
     }
@@ -64,7 +64,7 @@ export function getConfigFromEnv(): Config {
             port: +(process.env["WB_FP_HTTPS_PORT"] || DEFAULT_CONFIG.https.port)
         },
         ipfsNode: {
-            url: process.env["WB_IPFS_NODE"] || DEFAULT_CONFIG.ipfsNode.url,
+            host: process.env["WB_IPFS_NODE"] || DEFAULT_CONFIG.ipfsNode.host,
             gatewayPort: +(process.env["WB_IPFS_GATEWAY_PORT"] || DEFAULT_CONFIG.ipfsNode.gatewayPort),
             apiPort: +(process.env["WB_IPFS_API_PORT"] || DEFAULT_CONFIG.ipfsNode.apiPort)
         }
