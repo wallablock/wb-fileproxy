@@ -22,7 +22,13 @@ app.get("/wb/:dirCid/cover", endpoint(async (req, res) => {
             code: "HAS_NO_SUCH_ITEM",
             message: "Unknown error"
         };
-        if (!err.message) error.message = err;
+        /*
+         * If IPFS throws, the "message" field will be set on error,
+         * so we return "Unknown error"; if getCover throws no
+         * "message" field will be defined, so we return
+         * its error message.
+         */
+        if (err.message == undefined) error.message = err;
         res.status(404).send(error);
         return;
     }
@@ -40,7 +46,13 @@ app.get("/wb/:dirCid/desc", endpoint(async (req, res) => {
             code: "HAS_NO_SUCH_ITEM",
             message: "Unknown error"
         };
-        if (!err.message) error.message = err;
+        /*
+         * If IPFS throws, the "message" field will be set on error,
+         * so we return "Unknown error"; if getDesc throws no
+         * "message" field will be defined, so we return
+         * its error message.
+         */
+        if (err.message == undefined) error.message = err;
         res.status(404).send(error);
         return;
     }
