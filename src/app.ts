@@ -1,16 +1,16 @@
 import express from "express";
-
 import { endpoint } from "./helpers";
-
 import { getDir, fetchWithCid, getDesc, getCover } from "./ipfs"
+import { getConfigFromEnv } from "./config";
 
 export interface NotFoundReason {
     code: "NOT_FOUND" | "NOT_AN_OFFER_DIR" | "HAS_NO_SUCH_ITEM";
     message?: string
 }
 
+const config = getConfigFromEnv();
+
 let app = express();
-const port = +(process.env["PORT"] || 3000);
 
 app.get("/wb/:dirCid/cover", endpoint(async (req, res) => {
     let response;
@@ -98,4 +98,9 @@ app.get("/:cid", endpoint(async (req, res) => {
     res.send(response);
 }));
 
-app.listen(port, () => console.log(`Server running on port ${port}`));
+if (config.http.enable) {
+    app.listen(config.http.port, () => console.log(`Server running on port ${config.http.port}`));
+}
+if (config.https.enable) {
+    console.warn("HTTPS support not ready yet");
+}
