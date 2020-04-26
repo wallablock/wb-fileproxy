@@ -7,7 +7,8 @@ export interface Config {
         enable: boolean,
         port: number
     },
-    ipfsNode: string
+    ipfsNode: string,
+    ipfsTimeout: number
 };
 
 const DEFAULT_CONFIG: Config = {
@@ -19,7 +20,8 @@ const DEFAULT_CONFIG: Config = {
         enable: false,
         port: 443
     },
-    ipfsNode: "http://127.0.0.1:5001"
+    ipfsNode: "http://127.0.0.1:5001",
+    ipfsTimeout: 1000
 };
 
 function toBool(s?: string, keyName?: string): boolean | undefined {
@@ -55,6 +57,7 @@ export function getConfigFromEnv(): Config {
             enable: toBoolEnv("WB_FP_HTTPS_ENABLE") ?? DEFAULT_CONFIG.https.enable,
             port: +(process.env["WB_FP_HTTPS_PORT"] || DEFAULT_CONFIG.https.port)
         },
-        ipfsNode: process.env["WB_IPFS_NODE"] || DEFAULT_CONFIG.ipfsNode
+        ipfsNode: process.env["WB_IPFS_NODE"] || DEFAULT_CONFIG.ipfsNode,
+        ipfsTimeout: 1000
     }
 }

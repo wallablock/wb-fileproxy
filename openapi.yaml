@@ -3,7 +3,7 @@ info:
   title: Wallablock IPFS Proxy
   version: 0.1.0
 paths:
-  '/{cid}':
+  '/{dirCid}/{fileName}':
     get:
       summary: Get the contents of the CID
       parameters:

@@ -9,7 +9,7 @@ export interface NotFoundReason {
 }
 
 const config = getConfigFromEnv();
-const ipfs = new IpfsInterface(config.ipfsNode);
+const ipfs = new IpfsInterface(config.ipfsNode, config.ipfsTimeout);
 
 let app = express();
 
@@ -63,7 +63,6 @@ app.route("/wb/:dirCid")
         try {
             response = await ipfs.getDir(req.params.dirCid);
         } catch (err) {
-            console.log(err);
             res.sendStatus(404);
             return;
         }
@@ -75,24 +74,28 @@ app.route("/wb/:dirCid")
 
 app.get("/:cid/:fileName", endpoint(async (req, res) => {
     let cid = `${req.params.cid}/${req.params.fileName}`;
-    let response;
-    try {
-        response = await ipfs.fetchWithCid(cid);
-    } catch (err) {
+
+    //Check extension to set Content-Type
+    let extensionIndex = req.params.fileName.lastIndexOf('.');
+    if (extensionIndex == -1) {
         res.sendStatus(404);
         return;
     }
-    res.send(response);
-}));
-
-app.get("/:cid", endpoint(async (req, res) => {
-    let cid = `${req.params.cid}`;
+    let extension = req.params.fileName.slice(extensionIndex,req.params.fileName.length);
+    res.type(extension);
+    if (!res.get('Content-Type').startsWith("text/") && !res.get('Content-Type').startsWith("image/")) {
+        res.sendStatus(404);
+        return;
+    }
     try {
         for await (const chunk of ipfs.fetchWithCid(cid)) {
             // We send chunks as they are returned to avoid
             // storing the entire file in memory.
-            res.send(chunk);
+            // We use write because send() tries to set the status code each time is called
+            res.write(chunk);
         }
+        //Send 200 status if everything went ok
+        res.status(200).send();
     } catch (err) {
         res.sendStatus(404);
         return;
@@ -100,7 +103,8 @@ app.get("/:cid", endpoint(async (req, res) => {
 }));
 
 if (config.http.enable) {
-    app.listen(config.http.port, () => console.log(`Server running on port ${config.http.port}`));
+    //app.listen(config.http.port, () => console.log(`Server running on port ${config.http.port}`));
+    app.listen(3000, () => console.log(`Server running on port 3000`));
 }
 if (config.https.enable) {
     console.warn("HTTPS support not ready yet");
