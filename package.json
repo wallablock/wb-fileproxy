@@ -25,7 +25,10 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
+    "@types/multer": "^1.4.3",
     "express": "^4.17.1",
-    "ipfs-http-client": "^44.0.0"
+    "ipfs-http-client": "^44.0.0",
+    "multer": "^1.4.2",
+    "multiparty-express": "^0.1.9"
   }
 }
