@@ -30,7 +30,7 @@ var storage = multer.diskStorage({
 
 var upload = multer({
     storage: storage,
-    limits: {files: 20} //Accept only 20 files.
+    limits: {files: 21} //Accept only 20 images and 1 description.
 })
 
 app.get("/wb/:dirCid/cover", endpoint(async (req, res) => {
