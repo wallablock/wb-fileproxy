@@ -21,7 +21,17 @@ var storage = multer.diskStorage({
     }
 })
 
-var upload = multer({ storage: storage })
+/*fileFilter: function (req, file, cb) {
+    if () {
+        return cb(null, false, new Error('goes wrong on the mimetype'));
+    }
+    cb(null, true);
+}*/
+
+var upload = multer({
+    storage: storage,
+    limits: {files: 20} //Accept only 20 files.
+})
 
 app.get("/wb/:dirCid/cover", endpoint(async (req, res) => {
     let response;
@@ -67,8 +77,7 @@ app.get("/wb/:dirCid/desc", endpoint(async (req, res) => {
     res.redirect(`/${response}`);
 }));
 
-app.route("/wb/:dirCid")
-    .get(endpoint(async (req, res) => {
+app.get("/wb/:dirCid",endpoint(async (req, res) => {
         let response;
         try {
             response = await ipfs.getDir(req.params.dirCid);
@@ -78,69 +87,73 @@ app.route("/wb/:dirCid")
         }
         res.status(200).send(response);
     }))
-    .post(upload.any(),endpoint(async (req, res) => {
-        //Empty upload
-        if (!req.files) {
-            res.sendStatus(201);
+app.post("/wb/upload",upload.any(),endpoint(async (req, res) => {
+    //Empty upload
+    if (!req.files) {
+        res.sendStatus(201);
+        return;
+    }
+    const filesArr: any | Express.Multer.File[] = req.files;
+    if(Array.isArray(filesArr)){
+        let dest:string = `/tmp/my-uploads/${Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)}`;
+        let created = false;
+        //Create directory with a random name. If it already exists, use another random name.
+        while (!created) {
+            if (!fs.existsSync(dest)) {
+                created = true;
+                try {
+                    fs.mkdirSync(dest);
+                }
+                catch (err) {
+                    removeAllFiles(filesArr,'');
+                    res.sendStatus(500);
+                    return;
+                }
+            }
+            else dest = `/tmp/my-uploads/${Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)}`;
+        }
+        try {
+            filesArr.forEach(function(file:any){
+                //I'll check that the filename is valid before writing the file to disk using a multer function
+                fs.rename(file.path,`${dest}/${file.originalname}`, (err) => {
+                    if (err) throw err;
+                });
+            });
+            let dirCID = await ipfs.writeToIPFS(dest);
+            res.status(201).send(dirCID);
+            removeAllFiles([],dest);
             return;
         }
-        const filesArr: any | Express.Multer.File[] = req.files;
-        if(Array.isArray(filesArr)){
-            let dest:string = `/tmp/my-uploads/${Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)}`;
-            let created = false;
-            //Create directory with a random name. If it already exists, use another random name.
-            while (!created) {
-                if (!fs.existsSync(dest)) {
-                    created = true;
-                    try {
-                        fs.mkdirSync(dest);
-                    }
-                    catch (err) {
-                        removeAllFiles(filesArr,'');
-                        res.sendStatus(500);
-                        return;
-                    }
-                }
-                else dest = `/tmp/my-uploads/${Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)}`;
-            }
-            try {
-                filesArr.forEach(function(file:any){
-                    //I'll check that the filename is valid before writing the file to disk using a multer function
-                    fs.rename(file.path,`${dest}/${file.originalname}`, (err) => {
-                        if (err) throw err;
-                    });
-                });
-            }
-            catch (err) {
-                removeAllFiles(filesArr,dest);
-                res.sendStatus(500);
-                return;
-            }
+        catch (err) {
+            removeAllFiles(filesArr,dest);
+            res.sendStatus(500);
+            return;
         }
-        throw "Not implemented";
-    }));
+    }
+    res.sendStatus(400);
+}));
 
 function removeAllFiles(filesArr:any, dir:string) {
     filesArr.forEach(function(file:any){
-        fs.unlink(file.path, (err) => {
-            if (err) console.log(err);
-        });
+        try {fs.unlinkSync(file.path);}
+        //Ignore errors, we want to remove all files
+        catch (err) {}
     });
-    if (dir != '') {
-        const deleteFolderRecursive = function(path:any) {
-          if (fs.existsSync(path)) {
-            fs.readdirSync(path).forEach((file, index) => {
-              const curPath = Path.join(path, file);
-              if (fs.lstatSync(curPath).isDirectory()) {
+    if (dir != '') deleteFolderRecursive(dir);
+}
+
+function deleteFolderRecursive(path:any) {
+    if (fs.existsSync(path)) {
+        fs.readdirSync(path).forEach((file, index) => {
+            const curPath = Path.join(path, file);
+            if (fs.lstatSync(curPath).isDirectory()) {
                 deleteFolderRecursive(curPath);
-              }
-              else {
+            }
+            else {
                 fs.unlinkSync(curPath);
-              }
-            });
-            fs.rmdirSync(path);
-          }
-        };
+            }
+        });
+        fs.rmdirSync(path);
     }
 }
 

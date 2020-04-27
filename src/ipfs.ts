@@ -1,4 +1,6 @@
 import ipfsClient from 'ipfs-http-client';
+import { globSource } from 'ipfs-http-client';
+import { CID } from 'ipfs-http-client';
 
 export interface OfferDirInfo {
     descLink: string | null;
@@ -12,6 +14,13 @@ export class IpfsInterface {
     public constructor(ipfsUrl: string, timeout: number) {
         this.ipfs = ipfsClient(ipfsUrl);
         this.timeout = timeout;
+    }
+
+    public async writeToIPFS(dir: string): Promise<string> {
+        let file;
+        for await (file of this.ipfs.add(globSource(dir, { recursive: true}))) {}
+        //Get the CID of the folder
+        return file.cid.toString();
     }
 
     public fetchWithCid(cid: string): AsyncIterable<Buffer> {
