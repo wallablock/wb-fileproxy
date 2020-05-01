@@ -58,6 +58,6 @@ export function getConfigFromEnv(): Config {
             port: +(process.env["WB_FP_HTTPS_PORT"] || DEFAULT_CONFIG.https.port)
         },
         ipfsNode: process.env["WB_IPFS_NODE"] || DEFAULT_CONFIG.ipfsNode,
-        ipfsTimeout: 1000
+        ipfsTimeout: +(process.env["WB_FP_TIMEOUT"] || DEFAULT_CONFIG.ipfsTimeout)
     }
 }
