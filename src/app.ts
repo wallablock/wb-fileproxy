@@ -12,7 +12,7 @@ export interface NotFoundReason {
 }
 
 const config = getConfigFromEnv();
-const ipfs = new IpfsInterface(config.ipfsNode, config.ipfsTimeout);
+const ipfs = new IpfsInterface(config.ipfsNode, config.timeout);
 
 let app = express();
 var storage = multer.diskStorage({

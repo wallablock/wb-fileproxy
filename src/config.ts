@@ -8,7 +8,7 @@ export interface Config {
         port: number
     },
     ipfsNode: string,
-    ipfsTimeout: number
+    timeout: number
 };
 
 const DEFAULT_CONFIG: Config = {
@@ -21,7 +21,7 @@ const DEFAULT_CONFIG: Config = {
         port: 443
     },
     ipfsNode: "http://127.0.0.1:5001",
-    ipfsTimeout: 1000
+    timeout: 1000
 };
 
 function toBool(s?: string, keyName?: string): boolean | undefined {
@@ -58,6 +58,6 @@ export function getConfigFromEnv(): Config {
             port: +(process.env["WB_FP_HTTPS_PORT"] || DEFAULT_CONFIG.https.port)
         },
         ipfsNode: process.env["WB_IPFS_NODE"] || DEFAULT_CONFIG.ipfsNode,
-        ipfsTimeout: +(process.env["WB_FP_TIMEOUT"] || DEFAULT_CONFIG.ipfsTimeout)
+        timeout: +(process.env["WB_FP_TIMEOUT"] || DEFAULT_CONFIG.timeout)
     }
 }
