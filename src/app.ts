@@ -5,6 +5,7 @@ import { getConfigFromEnv } from "./config";
 import multer from "multer";
 import fs from "fs";
 import Path from "path";
+import cors from "cors";
 
 export interface NotFoundReason {
   code: "NOT_FOUND" | "NOT_AN_OFFER_DIR" | "HAS_NO_SUCH_ITEM";
@@ -15,6 +16,7 @@ const config = getConfigFromEnv();
 const ipfs = new IpfsInterface(config.ipfsNode, config.timeout);
 
 let app = express();
+app.use(cors());
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "/tmp/my-uploads");
