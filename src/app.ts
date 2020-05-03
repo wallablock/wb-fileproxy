@@ -104,7 +104,7 @@ app.post(
   endpoint(async (req, res) => {
     //Empty upload or invalid file
     if (!req.files || req.files.length == 0) {
-      res.sendStatus(201);
+      res.sendStatus(400);
       return;
     }
     const filesArr: any | Express.Multer.File[] = req.files;
