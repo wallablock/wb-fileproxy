@@ -6,12 +6,14 @@ import multer from "multer";
 import fs from "fs";
 import Path from "path";
 import cors from "cors";
+import https from "https";
 
 export interface NotFoundReason {
   code: "NOT_FOUND" | "NOT_AN_OFFER_DIR" | "HAS_NO_SUCH_ITEM";
   message?: string;
 }
 
+const imgRegex = /^img[0-9]{2}\./;
 const config = getConfigFromEnv();
 const ipfs = new IpfsInterface(config.ipfsNode, config.timeout);
 
@@ -27,6 +29,11 @@ var upload = multer({
   storage: storage,
   //Accept only 20 images and 1 description.
   limits: { files: 21 },
+  fileFilter: function fileFilter (req:any, file:Express.Multer.File, cb:any) {
+      if (file.mimetype.startsWith("image/") && imgRegex.test(file.originalname)) return cb(null, true);
+      else if (file.mimetype.startsWith("text/") && file.originalname === "desc.txt") return cb(null, true);
+      return cb(null, false, new Error('File not valid'));
+  }
 });
 
 app.get(
@@ -92,11 +99,11 @@ app.get(
 );
 
 app.post(
-  "/wb/upload",
+ "/wb/upload",
   upload.any(),
   endpoint(async (req, res) => {
-    //Empty upload
-    if (!req.files) {
+    //Empty upload or invalid file
+    if (!req.files || req.files.length == 0) {
       res.sendStatus(201);
       return;
     }
@@ -126,8 +133,8 @@ app.post(
         }
       }
       try {
+        //The original name is checked in the FileFilter function. If there are multiple descriptions, only one will be added to IPFS.
         filesArr.forEach(function (file: any) {
-          //I'll check that the filename is valid before writing the file to disk using a multer function
           fs.rename(file.path, `${dest}/${file.originalname}`, (err) => {
             if (err) throw err;
           });
@@ -211,9 +218,16 @@ app.get(
 );
 
 if (config.http.enable) {
-  //app.listen(config.http.port, () => console.log(`Server running on port ${config.http.port}`));
-  app.listen(3000, () => console.log(`Server running on port 3000`));
+    app.listen(config.http.port, () => console.log(`Server running on port ${config.http.port}`));
 }
+
 if (config.https.enable) {
-  console.warn("HTTPS support not ready yet");
+    let privateKey  = fs.readFileSync(config.https.key, 'utf8');
+    let certificate = fs.readFileSync(config.https.cert, 'utf8');
+    const options = {
+        key: privateKey,
+        cert: certificate
+    }
+    //https.createServer(options, app).listen(config.https.port);
+    console.warn("HTTPS support not ready yet");
 }

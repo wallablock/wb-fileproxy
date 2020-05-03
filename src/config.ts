@@ -6,6 +6,8 @@ export interface Config {
   https: {
     enable: boolean;
     port: number;
+    key: string;
+    cert: string;
   };
   ipfsNode: string;
   timeout: number;
@@ -19,6 +21,8 @@ const DEFAULT_CONFIG: Config = {
   https: {
     enable: false,
     port: 443,
+    key: 'server.key',
+    cert: 'server.crt',
   },
   ipfsNode: "http://127.0.0.1:5001",
   timeout: 1000,
@@ -56,6 +60,8 @@ export function getConfigFromEnv(): Config {
     https: {
       enable: toBoolEnv("WB_FP_HTTPS_ENABLE") ?? DEFAULT_CONFIG.https.enable,
       port: +(process.env["WB_FP_HTTPS_PORT"] || DEFAULT_CONFIG.https.port),
+      key: process.env["WB_FP_HTTPS_KEY"] || DEFAULT_CONFIG.https.key,
+      cert: process.env["WB_FP_HTTPS_CERT"] || DEFAULT_CONFIG.https.cert,
     },
     ipfsNode: process.env["WB_IPFS_NODE"] || DEFAULT_CONFIG.ipfsNode,
     timeout: +(process.env["WB_FP_TIMEOUT"] || DEFAULT_CONFIG.timeout),
