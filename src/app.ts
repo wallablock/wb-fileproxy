@@ -30,8 +30,8 @@ var upload = multer({
   //Accept only 20 images and 1 description.
   limits: { files: 21 },
   fileFilter: function fileFilter (req:any, file:Express.Multer.File, cb:any) {
-      if (file.mimetype.startsWith("image/") && imgRegex.test(file.originalname)) return cb(null, true);
-      else if (file.mimetype.startsWith("text/") && file.originalname === "desc.txt") return cb(null, true);
+      if (file.mimetype.startsWith("image/") && imgRegex.test(file.fieldname)) return cb(null, true);
+      else if (file.mimetype.startsWith("text/") && file.fieldname === "desc.txt") return cb(null, true);
       return cb(null, false, new Error('File not valid'));
   }
 });
@@ -133,9 +133,9 @@ app.post(
         }
       }
       try {
-        //The original name is checked in the FileFilter function. If there are multiple descriptions, only one will be added to IPFS.
+        //The field name is checked in the FileFilter function. If there are multiple descriptions, only one will be added to IPFS.
         filesArr.forEach(function (file: any) {
-          fs.rename(file.path, `${dest}/${file.originalname}`, (err) => {
+          fs.rename(file.path, `${dest}/${file.fieldname}`, (err) => {
             if (err) throw err;
           });
         });
