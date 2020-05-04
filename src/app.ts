@@ -193,6 +193,7 @@ app.get(
       extensionIndex,
       req.params.fileName.length
     );
+    res.append('Cache-Control','public, max-age=604800,immutable');
     res.type(extension);
     if (
       !res.get("Content-Type").startsWith("text/") &&
@@ -228,6 +229,7 @@ if (config.https.enable) {
         key: privateKey,
         cert: certificate
     }
-    //https.createServer(options, app).listen(config.https.port);
-    console.warn("HTTPS support not ready yet");
+    https.createServer(options, app).listen(config.https.port);
+    console.log(`Server (HTTPS) running on port ${config.https.port}`);
+    //console.warn("HTTPS support not ready yet");
 }
