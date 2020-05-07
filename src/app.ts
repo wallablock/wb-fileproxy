@@ -27,8 +27,8 @@ var storage = multer.diskStorage({
 
 var upload = multer({
   storage: storage,
-  //Accept only 20 images and 1 description.
-  limits: { files: 21 },
+  //Accept only 20 images and 1 description, maximum 5MB for each file.
+  limits: { files: 21, fileSize: 5242880, fields: 0 },
   fileFilter: function fileFilter (req:any, file:Express.Multer.File, cb:any) {
       if (file.mimetype.startsWith("image/") && imgRegex.test(file.fieldname)) return cb(null, true);
       else if (file.mimetype.startsWith("text/") && file.fieldname === "desc.txt") return cb(null, true);
@@ -56,6 +56,7 @@ app.get(
       res.status(404).send(error);
       return;
     }
+    res.append('Cache-Control','public,max-age=604800,immutable');
     res.redirect(`/${response}`);
   })
 );
@@ -80,6 +81,7 @@ app.get(
       res.status(404).send(error);
       return;
     }
+    res.append('Cache-Control','public,max-age=604800,immutable');
     res.redirect(`/${response}`);
   })
 );
@@ -94,6 +96,7 @@ app.get(
       res.sendStatus(404);
       return;
     }
+    res.append('Cache-Control','public, max-age=604800,immutable');
     res.status(200).send(response);
   })
 );

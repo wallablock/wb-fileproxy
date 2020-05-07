@@ -25,7 +25,7 @@ const DEFAULT_CONFIG: Config = {
     cert: 'server.crt',
   },
   ipfsNode: "http://127.0.0.1:5001",
-  timeout: 1000,
+  timeout: 10000,
 };
 
 function toBool(s?: string, keyName?: string): boolean | undefined {
