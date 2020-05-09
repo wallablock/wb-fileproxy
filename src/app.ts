@@ -28,7 +28,7 @@ var storage = multer.diskStorage({
 var upload = multer({
   storage: storage,
   //Accept only 20 images and 1 description, maximum 5MB for each file.
-  limits: { files: 21, fileSize: 5242880, fields: 0 },
+  limits: { files: 21, fileSize: 5242880 },
   fileFilter: function fileFilter (req:any, file:Express.Multer.File, cb:any) {
       if (file.mimetype.startsWith("image/") && imgRegex.test(file.fieldname)) return cb(null, true);
       else if (file.mimetype.startsWith("text/") && file.fieldname === "desc.txt") return cb(null, true);
@@ -112,6 +112,7 @@ app.post(
     }
     const filesArr: any | Express.Multer.File[] = req.files;
     if (Array.isArray(filesArr)) {
+      console.log(filesArr);
       let dest: string = `/tmp/my-uploads/${
         Math.random().toString(36).substring(2, 15) +
         Math.random().toString(36).substring(2, 15)
@@ -143,10 +144,12 @@ app.post(
           });
         });
         let dirCID = await ipfs.writeToIPFS(dest);
+	console.log(dirCID);
         res.status(201).send(dirCID);
         removeAllFiles([], dest);
         return;
       } catch (err) {
+	console.log(err);
         removeAllFiles(filesArr, dest);
         res.sendStatus(500);
         return;
