@@ -14,6 +14,11 @@ export class IpfsInterface {
     this.ipfs = ipfsClient(ipfsUrl);
   }
 
+  public async delDir(dir: string) {
+      //Doesn't need a timeout, this is only executed in the local node.
+      await this.ipfs.pin.rm(dir);
+  }
+
   public async writeToIPFS(dir: string): Promise<string> {
     let file;
     for await (file of this.ipfs.add(globSource(dir, { recursive: true }))) {

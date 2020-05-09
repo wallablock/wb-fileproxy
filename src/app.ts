@@ -101,6 +101,20 @@ app.get(
   })
 );
 
+app.get(
+  "/wb/delete/:dirCid",
+  endpoint(async (req, res) => {
+    let response;
+    try {
+      await ipfs.delDir(req.params.dirCid);
+    } catch (err) {
+      res.sendStatus(404);
+      return;
+    }
+    res.sendStatus(200);
+  })
+);
+
 app.post(
  "/wb/upload",
   upload.any(),
