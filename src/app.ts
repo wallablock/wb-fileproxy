@@ -1,6 +1,7 @@
 import express from "express";
 import { endpoint } from "./helpers";
 import { IpfsInterface } from "./ipfs";
+//import { Blockchain, CidSearchFound, OfferStatus } from "wb-blockchain"
 import { getConfigFromEnv } from "./config";
 import multer from "multer";
 import fs from "fs";
@@ -16,7 +17,7 @@ export interface NotFoundReason {
 const imgRegex = /^img[0-9]{2}\./;
 const config = getConfigFromEnv();
 const ipfs = new IpfsInterface(config.ipfsNode, config.timeout);
-
+//const blockhain = new Blockchain(config.ethereumNode,config.registryContract);
 let app = express();
 app.use(cors());
 var storage = multer.diskStorage({
@@ -104,12 +105,20 @@ app.get(
 app.get(
   "/wb/delete/:dirCid",
   endpoint(async (req, res) => {
-    let response;
-    try {
-      await ipfs.delDir(req.params.dirCid);
-    } catch (err) {
-      res.sendStatus(404);
-      return;
+    /*let unpin = false;
+    let [found, status] = await blockhain.findCid(req.params.dirCid);
+    //Check if the CID is in the Blockchain and if its status it's different than CANCELLED or COMPLETED
+    unpin = (found == CidSearchFound.NOT_FOUND || found == CidSearchFound.GONE
+            || (status != null && (status.has(OfferStatus.CANCELLED) || status.has(OfferStatus.COMPLETED))));*/
+    let unpin = true;
+    if (unpin) {
+        let response;
+        try {
+          await ipfs.delDir(req.params.dirCid);
+        } catch (err) {
+          res.sendStatus(404);
+          return;
+        }
     }
     res.sendStatus(200);
   })

@@ -11,6 +11,8 @@ export interface Config {
   };
   ipfsNode: string;
   timeout: number;
+  ethereumNode: string;
+  registryContract: string;
 }
 
 const DEFAULT_CONFIG: Config = {
@@ -26,6 +28,8 @@ const DEFAULT_CONFIG: Config = {
   },
   ipfsNode: "http://127.0.0.1:5001",
   timeout: 10000,
+  ethereumNode: "ws://localhost:8545",
+  registryContract: "",
 };
 
 function toBool(s?: string, keyName?: string): boolean | undefined {
@@ -65,5 +69,7 @@ export function getConfigFromEnv(): Config {
     },
     ipfsNode: process.env["WB_IPFS_NODE"] || DEFAULT_CONFIG.ipfsNode,
     timeout: +(process.env["WB_FP_TIMEOUT"] || DEFAULT_CONFIG.timeout),
+    ethereumNode: process.env["WB_ETHEREUM_NODE"] || DEFAULT_CONFIG.ethereumNode,
+    registryContract: process.env["WB_REGISTRY_CONTRACT"] || DEFAULT_CONFIG.registryContract,
   };
 }
