@@ -17,7 +17,7 @@ export interface NotFoundReason {
 const imgRegex = /^img[0-9]{2}\./;
 const config = getConfigFromEnv();
 const ipfs = new IpfsInterface(config.ipfsNode, config.timeout);
-//const blockhain = new Blockchain(config.ethereumNode,config.registryContract);
+//const blockhain = new Blockchain(config.registryContract,config.ethereumNode);
 let app = express();
 app.use(cors());
 var storage = multer.diskStorage({
@@ -102,7 +102,7 @@ app.get(
   })
 );
 
-app.get(
+app.delete(
   "/wb/delete/:dirCid",
   endpoint(async (req, res) => {
     /*let unpin = false;
@@ -120,7 +120,7 @@ app.get(
           return;
         }
     }
-    res.sendStatus(200);
+    res.sendStatus(204);
   })
 );
 
