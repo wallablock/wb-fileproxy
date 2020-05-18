@@ -107,7 +107,9 @@ app.delete(
   endpoint(async (req, res) => {
     let unpin = false;
     try {
+      console.log("Preblockchain");
       let [found, status] = await blockchain.findCid(req.params.dirCid);
+      console.log("Postblockchain");
       //Check if the CID is in the Blockchain and if its status it's different than CANCELLED or COMPLETED
       unpin = (found == CidSearchFound.NOT_FOUND || found == CidSearchFound.GONE
               || (status != null && (status.has(OfferStatus.CANCELLED) || status.has(OfferStatus.COMPLETED))));
